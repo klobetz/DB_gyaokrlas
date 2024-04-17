@@ -1,10 +1,17 @@
 using Egy_tablas_DB.Components;
+using Egy_tablas_DB.Data;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddDbContext<DB_Context_EF_Core>(op =>
+op.UseMySQL(builder.Configuration.GetConnectionString("BlazorAppDBContext")));
+
+builder.Services.AddQuickGridEntityFrameworkAdapter();
 
 var app = builder.Build();
 
