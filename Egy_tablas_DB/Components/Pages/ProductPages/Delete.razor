@@ -1,0 +1,72 @@
+﻿@page "/deleteproduct"
+@using Egy_tablas_DB.Model
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using Microsoft.EntityFrameworkCore
+@inject Egy_tablas_DB.Data.DB_Context_EF_Core DB
+@inject NavigationManager NavManager
+@rendermode InteractiveServer
+
+<h3>Delete</h3>
+<div>
+    @if (product is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else
+    {
+        <dl class="row">
+            <dt class="col-sm-2">Név:</dt>
+            <dd class="col-sm-8">@product.Name</dd>
+        </dl>
+
+        <EditForm method="post" Model="product" OnValidSubmit="DeleteUser" FormName="Delete" Enhance>
+            <button type="submit" class="btn btn-danger" disabled="@(product is null)">Delete</button>
+            <a href="/userhome" class="btn btn-primary">Back to Users List</a>
+        </EditForm>
+
+    }
+</div>
+
+@code {
+    Product? product;
+
+    [SupplyParameterFromQuery]
+    public int ProductId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        product = await DB.Products.FirstOrDefaultAsync(x=>x.ProductId==ProductId);
+
+
+    }
+
+
+    public async Task DeleteUser()
+    {
+        product.ShowData = false;
+        DB.Attach(product).State = EntityState.Modified;
+
+        try
+        {
+            DB.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!UserExceptin(product.ProductId))
+            {
+                NavManager.NavigateTo("/Error");
+            }
+            else
+            {
+                throw;
+            }
+        }
+        NavManager.NavigateTo("/producthome");
+    }
+    bool UserExceptin(int id)
+    {
+        return DB.Products.Any(x => x.ProductId == id);
+    }
+}
+
+}

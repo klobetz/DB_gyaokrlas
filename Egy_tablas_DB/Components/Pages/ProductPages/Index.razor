@@ -1,0 +1,33 @@
+﻿@page "/producthome"
+@using Egy_tablas_DB.Model
+@using Microsoft.AspNetCore.Components.QuickGrid
+@inject Egy_tablas_DB.Data.DB_Context_EF_Core DB
+@inject NavigationManager NavManager
+@rendermode InteractiveServer
+
+<h3>Index</h3>
+<hr />
+
+<a>Create</a>
+
+@if (DB.Products is null)
+{
+    <p>Loading...</p>    
+}else{
+    <QuickGrid Class="table" Items="DB.Products.Where(x=>x.ShowData)" Pagination="state">
+        <PropertyColumn Title="Név:" Property="x =>x.Name" Sortable="true"/>
+        <PropertyColumn Title="Show:" Property="x =>x.ShowData" Sortable="true"/>
+        <PropertyColumn Title="Date:" Property="x =>x.CreatedAt" Sortable="true" Format="yyyy.MM.dd"/>
+
+
+            <TemplateColumn Context="proid" Title="Szerkesztés">
+                <a href="@($"deleteproduct?ProductId={proid.ProductId}")" class="btn btn-danger">Delete</a>
+            </TemplateColumn>
+        
+    </QuickGrid>
+    <Paginator State="state"/>
+}
+
+@code {
+    PaginationState state = new PaginationState { ItemsPerPage = 1 };
+}
